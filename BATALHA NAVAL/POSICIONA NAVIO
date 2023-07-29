@@ -178,7 +178,7 @@ int posicionaNavio(char navio,int lin,int col, char direcao, char *mapa,int nlin
                 if (lin - tamanho_navio < 0) return -1; // TESTE: FORA DOS LIMITES DO MAPA
                 if(*(mapa + NCOL*(lin - i) + col) != ' ') {
                     return -1; // teste para navio não sobressair outro
-                } else *(mapa + NCOL*(lin - i) + col) = ship_type;
+                } else *(mapa + NCOL*(lin - i - 1)  + (col - 1)) = ship_type;
             }
             break;
 
@@ -189,7 +189,7 @@ int posicionaNavio(char navio,int lin,int col, char direcao, char *mapa,int nlin
                 if (lin + tamanho_navio > 9) return -1; // TESTE: FORA DOS LIMITES DO MAPA
                 if(*(mapa + NCOL*(lin + i - 1) + col) != ' ') {
                     return -1;// teste para navio não sobressair outro
-                } else *(mapa + NCOL*(lin + i - 1) + col) = ship_type;
+                } else *(mapa + NCOL*(lin + i -1 ) + (col- 1)) = ship_type;
             }
             break;
 
