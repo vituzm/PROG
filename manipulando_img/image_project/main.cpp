@@ -99,7 +99,7 @@ int main()
             int offset = y * bytes_Linha + x * 3;
 
             // calculando para grayscale
-            int media = (rgb[offset] + rgb[offset + 1] + rgb[offset + 2]) / 3;
+            int media = 0.3 * rgb[offset] + 0.6* rgb[offset+1]  + 0.11* rgb[offset+2];
 
             // Set R, G, and B values to the grayscale value
             rgb[offset] = media;         // Red
