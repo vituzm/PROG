@@ -114,7 +114,7 @@ int main()
 
     outFile.write(rgb, numBytes);
     outFile.close();
-
+// meu pau
 
     delete[] rgb;
     return 0;
