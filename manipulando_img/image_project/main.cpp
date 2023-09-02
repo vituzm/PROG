@@ -43,7 +43,7 @@ int main()
 
     ifstream inFile; //para acessar o arquivo para leitura
     ofstream outFile; //para aceesaor o arquivo de relatorio
-    ofstream arqsaida;
+    //ofstream arqsaida;
 
     inFile.open("teste.bmp", ios::in|ios::binary);
     if (!inFile) // testando se o arquivo existe
@@ -92,7 +92,7 @@ int main()
     outFile.write((char *)&cab_arq, sizeof(cabecalho_arq));
     outFile.write((char *)&cab_bit, sizeof(cabecalho_bitMapa));
 
-    arqsaida.open("texo_gs.txt", ios::out);
+    //arqsaida.open("texo_gs.txt", ios::out);
     for (int y = 0; y < cab_bit.altura_img; y++) {
         for (int x = 0; x < cab_bit.largura_img; x++) {
             // calculando a posição do ponteiro rgb
@@ -106,7 +106,7 @@ int main()
             rgb[offset + 1] = media;     // Green
             rgb[offset + 2] = media;     // Blue
 
-            arqsaida << y << "|"  << x << "|" <<offset << "|" << rgb[offset] << "|" << rgb[offset + 1] << "|" << rgb[offset + 2] << endl;
+            //arqsaida << y << "|"  << x << "|" <<offset << "|" << rgb[offset] << "|" << rgb[offset + 1] << "|" << rgb[offset + 2] << endl;
 
         }
     }
