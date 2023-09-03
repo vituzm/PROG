@@ -43,7 +43,8 @@ int main()
 
     ifstream inFile; //para acessar o arquivo para leitura
     ofstream outFile; //para aceesaor o arquivo de relatorio
-    //ofstream arqsaida;
+    ofstream arqmono; // arquivo de img em monocor
+    ofstream arqtestetxt; // arquivo de teste
 
     inFile.open("teste.bmp", ios::in|ios::binary);
     if (!inFile) // testando se o arquivo existe
@@ -81,10 +82,12 @@ int main()
     int numBytes = (cab_bit.altura_img * bytes_Linha);
 
     char *rgb = new char[numBytes]; // todos os bytes de todos os pixels
+    char *mono = new char[numBytes]; // todos os bytes de todos os pixels
     cout << "total de bytes: " << numBytes <<endl;
 
     //gravando todos os bytes
     inFile.read(rgb, numBytes);
+    inFile.read(mono, numBytes);
     inFile.close();
 
     int x, y;
@@ -107,30 +110,48 @@ int main()
             loop = false;
     }
 
-    //escrevendo o arquivo de saida
+    //escrevendo o arquivo de saida rgb para monocor
+    arqmono.open("mono.bmp", ios::out);
+    arqmono.write((char *)&cab_arq, sizeof(cabecalho_arq));
+    arqmono.write((char *)&cab_bit, sizeof(cabecalho_bitMapa));
+    
+    //escrevendo o arquivo de saida rgb para grayscale
     outFile.open("textoDeco.bmp", ios::out);
     outFile.write((char *)&cab_arq, sizeof(cabecalho_arq));
     outFile.write((char *)&cab_bit, sizeof(cabecalho_bitMapa));
 
-    //arqsaida.open("texo_gs.txt", ios::out);
+    arqtestetxt.open("texto.txt", ios::out); //arquivo de teste txt
     for (int y = 0; y < cab_bit.altura_img; y++) {
         for (int x = 0; x < cab_bit.largura_img; x++) {
             // calculando a posição do ponteiro rgb
-            int offset = y * bytes_Linha + x * 3;
+            unsigned int offset = y * bytes_Linha + x * 3;
 
             // calculando para grayscale
             int media = 0.3 * rgb[offset] + 0.6* rgb[offset+1]  + 0.11* rgb[offset+2];
-
+            arqtestetxt << offset << "|" << media << endl;
+            
             // Set R, G, and B values to the grayscale value
             rgb[offset] = media;         // Red
             rgb[offset + 1] = media;     // Green
             rgb[offset + 2] = media;     // Blue
 
-            //arqsaida << y << "|"  << x << "|" <<offset << "|" << rgb[offset] << "|" << rgb[offset + 1] << "|" << rgb[offset + 2] << endl;
-
+            if(media == -1) media = 255;
+            if(abs(media) < limiar_val){
+                mono[offset] = 0;
+                mono[offset + 1] = 0;
+                mono[offset + 2] = 0;
+            }else{
+                mono[offset] = -1;
+                mono[offset + 1] = -1;
+                mono[offset + 2] = -1;
+            }
+            
         }
     }
+    arqtestetxt.close();
 
+    arqmono.write(mono, numBytes);
+    arqmono.close();
 
     outFile.write(rgb, numBytes);
     outFile.close();
