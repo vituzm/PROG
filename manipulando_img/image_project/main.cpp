@@ -87,6 +87,26 @@ int main()
     inFile.read(rgb, numBytes);
     inFile.close();
 
+    int x, y;
+    int limiar_val;
+
+    // entrada de informações do usuario
+    cout << "|DIGITE AS COORDENADAS DE SAIDA: " << endl ;
+    bool loop = true;
+    while (loop){
+        cout << "-> EIXO X (0 a 488): ";
+        cin >> x;
+        cout << "-> EIXO y (0 a 606): ";
+        cin >> y;
+        cout << endl << "|VALOR DE LIMIAR (0 a 255): ";
+        cin >> limiar_val;
+        //teste - dentro dos parametros
+        if(x + 48 <= cab_bit.largura_img && y - 84 > 0 && y <= cab_bit.altura_img)
+            loop = false;
+        if(limiar_val <= 255 && limiar_val >= 0)
+            loop = false;
+    }
+
     //escrevendo o arquivo de saida
     outFile.open("textoDeco.bmp", ios::out);
     outFile.write((char *)&cab_arq, sizeof(cabecalho_arq));
