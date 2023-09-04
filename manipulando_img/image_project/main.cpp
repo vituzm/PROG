@@ -53,55 +53,65 @@ int main()
         return -1;
     }
 
-    cabecalho_arq cab_arq; // Cabe�alho de arquivo
-    cabecalho_bitMapa cab_bit; // Cabe�alho de mapa de bits
+    cabecalho_arq cab_arq; // cabecalho de arquivo
+    cabecalho_bitMapa cab_bit; // cabecalho de mapa de bits
 
-    // preenchendo os campos do cabe�alho de arquivo
+    /**
+    -> Informacoes sobre o cabecalho do arquivo e sobre a imagem
+    */
+    // preenchendo os campos do cabecalho de arquivo
     inFile.read((char *)&cab_arq, sizeof(cabecalho_arq));
-    cout << "Assinatuura: "<< cab_arq.assinatura[0] << cab_arq.assinatura[1] << endl;
-    cout << "Tamanho do arquivo: " << cab_arq.tam_arquivo << " bytes" << endl;
-    cout << "Offset dos dados: " << cab_arq.dataOffset << " bytes" << endl;
+    cout << "\tCABECALHO DO ARQUIVO" << endl;
+    cout << "- Assinatuura: "<< cab_arq.assinatura[0] << cab_arq.assinatura[1] << endl;
+    cout << "- Tamanho do arquivo: " << cab_arq.tam_arquivo << " bytes" << endl;
+    cout << "- Offset dos dados: " << cab_arq.dataOffset << " bytes" << endl;
 
-    // preenchendo os campos do cabe�alho de mpa de bit
+    // preenchendo os campos do cabecalho de mapa de bit
     inFile.read((char *)&cab_bit, sizeof(cabecalho_bitMapa));
-    cout << "Tamanho da Imagem: " << cab_bit.tam_img << endl;
-    cout << "Planos: : "<< cab_bit.planes << endl;
-    cout << "Largura: " << cab_bit.largura_img << endl;
-    cout << "Altura: " << cab_bit.altura_img << endl;
+    cout << "\n\tCABECALHO DO MAPA DE BITS" << endl;
+    cout << "- Tamanho da Imagem: " << cab_bit.tam_img << endl;
+    cout << "- Planos: " << cab_bit.planes << endl;
+    cout << "- Largura: " << cab_bit.largura_img << endl;
+    cout << "- Altura: " << cab_bit.altura_img << endl;
 
+
+    /**
+    -> Calculo de numero de bytes e gravacao dos mesmos
+    */
     // calculando o resto de bytes em cada linha
     int resto = 0;
     if(cab_bit.largura_img%4 != 0){
         resto += (4 - (cab_bit.largura_img%4));
     }
 
-    // calculando numero de bytes em uma linha
-    int bytes_Linha = (cab_bit.largura_img*3) + resto;
-
-    // calculando o numero de bytes total usados
-    int numBytes = (cab_bit.altura_img * bytes_Linha);
+    int bytes_Linha = (cab_bit.largura_img*3) + resto; // numero de bytes em uma linha
+    int numBytes = (cab_bit.altura_img * bytes_Linha); // numero de bytes total usados
 
     char *rgb = new char[numBytes]; // todos os bytes de todos os pixels
     char *mono = new char[numBytes]; // todos os bytes de todos os pixels
-    cout << "total de bytes: " << numBytes <<endl;
+    cout << "- Total de bytes: " << numBytes << endl;
 
-    //gravando todos os bytes
+    // gravando todos os bytes
     inFile.read(rgb, numBytes);
     inFile.read(mono, numBytes);
     inFile.close();
 
+
+    /**
+    -> Insercao de dados para o recorte da imagem
+    */
     int x, y;
     int limiar_val;
 
     // entrada de informações do usuario
-    cout << "|DIGITE AS COORDENADAS DE SAIDA: " << endl ;
+    cout << "\n\tDIGITE AS COORDENADAS DE SAIDA" << endl ;
     bool loop = true;
     while (loop){
-        cout << "-> EIXO X (0 a 488): ";
+        cout << "-> Posicao eixo X (0 a 488): ";
         cin >> x;
-        cout << "-> EIXO y (0 a 606): ";
+        cout << "-> Posicao eixo y (0 a 606): ";
         cin >> y;
-        cout << endl << "|VALOR DE LIMIAR (0 a 255): ";
+        cout << endl << "-> Valor de limiar RGB (0 a 255): ";
         cin >> limiar_val;
         //teste - dentro dos parametros
         if(x + 48 <= cab_bit.largura_img && y - 84 > 0 && y <= cab_bit.altura_img)
@@ -110,17 +120,20 @@ int main()
             loop = false;
     }
 
-    //escrevendo o arquivo de saida rgb para monocor
+    /**
+    -> Criacao dos arquivos em mono e grayscale
+    */
+    // escrevendo o arquivo de saida rgb para monocor
     arqmono.open("mono.bmp", ios::out);
     arqmono.write((char *)&cab_arq, sizeof(cabecalho_arq));
     arqmono.write((char *)&cab_bit, sizeof(cabecalho_bitMapa));
-    
-    //escrevendo o arquivo de saida rgb para grayscale
-    outFile.open("textoDeco.bmp", ios::out);
+
+    // escrevendo o arquivo de saida rgb para grayscale
+    outFile.open("teste_gs.bmp", ios::out);
     outFile.write((char *)&cab_arq, sizeof(cabecalho_arq));
     outFile.write((char *)&cab_bit, sizeof(cabecalho_bitMapa));
 
-    arqtestetxt.open("texto.txt", ios::out); //arquivo de teste txt
+    arqtestetxt.open("texto.txt", ios::out); // arquivo de teste txt
     for (int y = 0; y < cab_bit.altura_img; y++) {
         for (int x = 0; x < cab_bit.largura_img; x++) {
             // calculando a posição do ponteiro rgb
@@ -129,8 +142,8 @@ int main()
             // calculando para grayscale
             int media = 0.3 * rgb[offset] + 0.6* rgb[offset+1]  + 0.11* rgb[offset+2];
             arqtestetxt << offset << "|" << media << endl;
-            
-            // Set R, G, and B values to the grayscale value
+
+            // passando os valores de R, G e B para grayscale
             rgb[offset] = media;         // Red
             rgb[offset + 1] = media;     // Green
             rgb[offset + 2] = media;     // Blue
@@ -145,7 +158,7 @@ int main()
                 mono[offset + 1] = -1;
                 mono[offset + 2] = -1;
             }
-            
+
         }
     }
     arqtestetxt.close();
@@ -155,8 +168,8 @@ int main()
 
     outFile.write(rgb, numBytes);
     outFile.close();
-    
 
+    cout << "\nAs informacoes foram gravadas no projeto!" << endl;
     delete[] rgb;
     return 0;
 }
