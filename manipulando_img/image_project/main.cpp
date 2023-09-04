@@ -171,5 +171,6 @@ int main()
 
     cout << "\nAs informacoes foram gravadas no projeto!" << endl;
     delete[] rgb;
+    delete[] mono;
     return 0;
 }
