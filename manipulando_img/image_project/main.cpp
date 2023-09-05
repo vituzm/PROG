@@ -44,6 +44,7 @@ int main()
     ifstream inFile; //para acessar o arquivo para leitura
     ofstream outFile; //para aceesaor o arquivo de relatorio
     ofstream arqmono; // arquivo de img em monocor
+    ofstream arqsaida;
     ofstream arqtestetxt; // arquivo de teste
 
     inFile.open("teste.bmp", ios::in|ios::binary);
@@ -133,7 +134,6 @@ int main()
     outFile.write((char *)&cab_arq, sizeof(cabecalho_arq));
     outFile.write((char *)&cab_bit, sizeof(cabecalho_bitMapa));
 
-    arqtestetxt.open("texto.txt", ios::out); // arquivo de teste txt
     for (int y = 0; y < cab_bit.altura_img; y++) {
         for (int x = 0; x < cab_bit.largura_img; x++) {
             // calculando a posição do ponteiro rgb
@@ -141,7 +141,6 @@ int main()
 
             // calculando para grayscale
             int media = 0.3 * rgb[offset] + 0.6* rgb[offset+1]  + 0.11* rgb[offset+2];
-            arqtestetxt << offset << "|" << media << endl;
 
             // passando os valores de R, G e B para grayscale
             rgb[offset] = media;         // Red
@@ -149,26 +148,62 @@ int main()
             rgb[offset + 2] = media;     // Blue
 
             if(media == -1) media = 255;
-            if(abs(media) < limiar_val){
+            if(fabs(media) < limiar_val){
                 mono[offset] = 0;
                 mono[offset + 1] = 0;
                 mono[offset + 2] = 0;
             }else{
-                mono[offset] = -1;
-                mono[offset + 1] = -1;
-                mono[offset + 2] = -1;
+                mono[offset] = 255;
+                mono[offset + 1] = 255;
+                mono[offset + 2] = 255;
             }
 
         }
     }
-    arqtestetxt.close();
+
+    arqtestetxt.open("texto.h", ios::out);
+    arqsaida.open("teste.h", ios::out);
+    arqsaida << "unsigned int[504] = {" << endl;
+    
+    int aux = 0;
+    int conta = 0;
+
+    // criando o recorte da imagem
+    for (int j = y; j > y - 84; j--){       // redefinindo as coordenadas de inicio do ponteiro
+        for (int k = x; k < x + 48 ; k++){  // inferior esquerdo para superior esquerdo
+            int byte = j * bytes_Linha + k *3;
+            int pixel = mono[byte] + mono[byte + 1] + mono[byte + 2];
+
+
+            if(pixel == 0){ //ponto ligado
+                conta += pow(2, aux);
+                arqtestetxt << 1;
+            }else {
+                conta += 0; // ponto desligad
+                arqtestetxt << 0;
+            }
+
+            aux++;
+            if(aux == 8) {
+               arqsaida << "0x" << conta << hex << ", ";
+               aux = 0;
+               conta = 0;
+
+            }
+        }
+        arqtestetxt << endl;
+        arqsaida << endl;
+    }
+    arqsaida << "};";
+    
 
     arqmono.write(mono, numBytes);
     arqmono.close();
 
     outFile.write(rgb, numBytes);
     outFile.close();
-
+    arqtestetxt.close();
+    
     cout << "\nAs informacoes foram gravadas no projeto!" << endl;
     delete[] rgb;
     delete[] mono;
